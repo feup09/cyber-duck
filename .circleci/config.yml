@@ -1,0 +1,19 @@
+version: 2 # CircleCI version
+jobs:
+  build:
+    machine: true # Use a Linux VM instead of docker environment
+    working_directory: ~/repo # Default working directory, where your project will be cloned
+    steps:
+        - checkout
+        - run: cp .env.testing ./.env
+        - run: docker-compose up -d --build
+        - run: sudo apt-get install npm
+        - run: docker-compose exec php-fpm composer install
+        - run: docker-compose exec php-fpm php artisan config:clear
+        - run: docker-compose exec php-fpm php artisan key:generate
+        - run: docker-compose exec php-fpm php artisan config:cache
+        - run: docker-compose exec php-fpm php artisan storage:link
+        - run: sudo docker-compose exec php-fpm php artisan migrate:fresh --seed
+        - run: sudo npm install
+        - run: npm run dev
+        - run: docker-compose exec php-fpm php artisan test
