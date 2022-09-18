@@ -29,7 +29,9 @@ Route::prefix('sales')->middleware('auth')->group(function () {
     Route::get('/', function () {
         return view('coffee_sales');
     })->name('coffee.sales');
+    Route::post('/', [SaleController::class, 'store'])->name('coffe.sales.store-sale');
     Route::get('/get-selling-price', [SaleController::class, 'calculateSellingPrice'])->name('coffe.sales.get-selling-price');
+    Route::get('/get-sales', [SaleController::class, 'getSales'])->name('coffe.sales.get-sales');
 });
 
 
