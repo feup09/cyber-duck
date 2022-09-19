@@ -9,7 +9,16 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" x-data="sales()">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-2 gap-y-2">
+                    <div class="grid grid-cols-1  lg:grid-cols-5 gap-x-2 gap-y-2">
+                        <div>
+                            <x-label>{{ __('Product') }}</x-label>
+                            <x-select name="product" x-model="product" @change.debounce="calculateSellingPrice()">
+                                <option value="0">{{ __('Select') }}</option>
+                                @foreach ($products as $product)
+                                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                @endforeach
+                            </x-select>
+                        </div>
                         <div>
                             <x-label>{{ __('Quantity') }}</x-label>
                             <x-input name="quantity" type="number" x-model="quantity"
@@ -45,6 +54,7 @@
                         <x-table x-init="getSales()">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <x-th>{{ __('Product') }}</x-th>
                                     <x-th>{{ __('Quantity') }}</x-th>
                                     <x-th>{{ __('Unit Cost') }}</x-th>
                                     <x-th>{{ __('Selling Price') }}</x-th>
@@ -53,6 +63,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <template x-for="sale in sales">
                                     <tr>
+                                        <x-td x-text="sale.product.name"></x-td>
                                         <x-td x-text="sale.quantity"></x-td>
                                         <x-td x-text="`${currency}${sale.unit_cost}`"></x-td>
                                         <x-td x-text="`${currency}${sale.selling_price}`"></x-td>
@@ -76,6 +87,7 @@
     function sales() {
         return {
             currency: currency,
+            product: 0,
             quantity: 0,
             unitCost: 0,
             sellingPrice: currency + '--.--',
@@ -83,6 +95,7 @@
             errorMessage: null,
             sales: [],
             resetCalculator() {
+                this.product = 0
                 this.quantity = 0
                 this.unitCost = 0
                 this.sellingPrice = currency + '--.--'
@@ -99,6 +112,7 @@
             calculateSellingPrice() {
                 axios.get('/sales/get-selling-price', {
                         params: {
+                            product: this.product,
                             quantity: this.quantity,
                             unitCost: this.unitCost,
                         }
@@ -119,6 +133,7 @@
                     return
                 }
                 axios.post('/sales', {
+                        product: this.product,
                         quantity: this.quantity,
                         unitCost: this.unitCost,
 
