@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -26,7 +27,12 @@ class CalculateSellingPriceTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/sales/get-selling-price?quantity=1&unitCost=10');
+        Product::create([
+            'name' => 'Gold coffe',
+            'profit_margin' => 25,
+        ]);
+
+        $response = $this->actingAs($user)->get('/sales/get-selling-price?quantity=1&unitCost=10&product=1');
 
         $response
             ->assertStatus(200)
@@ -34,7 +40,7 @@ class CalculateSellingPriceTest extends TestCase
                 'sellingPrice' => 23.34
             ]);
 
-        $response = $this->actingAs($user)->get('/sales/get-selling-price?quantity=2&unitCost=20.50');
+        $response = $this->actingAs($user)->get('/sales/get-selling-price?quantity=2&unitCost=20.50&product=1');
 
         $response
             ->assertStatus(200)
@@ -42,7 +48,7 @@ class CalculateSellingPriceTest extends TestCase
                 'sellingPrice' => 64.67
             ]);
 
-        $response = $this->actingAs($user)->get('/sales/get-selling-price?quantity=5&unitCost=12');
+        $response = $this->actingAs($user)->get('/sales/get-selling-price?quantity=5&unitCost=12&product=1');
 
         $response
             ->assertStatus(200)

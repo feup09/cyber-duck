@@ -2,17 +2,22 @@
 
 namespace App\Services;
 
+use App\Models\Product;
+
 class SaleService
 {
-    const PROFIT_MARGIN = 0.25;
     const SHIPPING_COST = 10;
 
     private function calculateCost($quantity = 0, $unitCost = 0)
     {
         return $quantity * $unitCost;
     }
-    public function calculateSellingPrice($quantity = 0, $unitCost = 0)
+    private function profitMargin($product)
     {
-        return ceil((($this->calculateCost($quantity, $unitCost) / (1 - self::PROFIT_MARGIN)) + self::SHIPPING_COST) * 100) / 100;
+        return Product::find($product)->profit_margin / 100;
+    }
+    public function calculateSellingPrice($product = 0, $quantity = 0, $unitCost = 0)
+    {
+        return ceil((($this->calculateCost($quantity, $unitCost) / (1 - $this->profitMargin($product))) + self::SHIPPING_COST) * 100) / 100;
     }
 }
